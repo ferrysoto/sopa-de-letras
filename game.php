@@ -95,7 +95,6 @@ session_start();
     }
 
   if (!isset($_SESSION["game"]) or is_null($_SESSION["game"])){
-
     if (!isset($_POST["username"], $_POST["rows"], $_POST["columns"], $_POST["words"])){
       header('Location:./index.php');
       die();
@@ -107,7 +106,9 @@ session_start();
     $_SESSION["game"] = newGame($_SESSION["rows"], $_SESSION["columns"], $_SESSION["words"]);
 
   } else if (isset($_GET["cell"])) {
+    if (!empty($_GET["cell"])) {
       ifCorrect($_GET["cell"]);
+    }
   }
   $arrayGame = $_SESSION["game"];
 
