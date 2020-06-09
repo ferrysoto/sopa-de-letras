@@ -9,83 +9,55 @@
   <body>
     <div class="container">
       <?php
-      echo "<h3>Está jugando:  " . $_POST['name'] . "</h3>";
       session_start();
+      echo "<h3>Está jugando:  " . $_SESSION["name"] . "</h3>";
 
-      $name = $_POST['name'];
-      $rows = $_POST['rows'];
-      $columns = $_POST['columns'];
+      $_SESSION["name"] =  $_POST['name'];
+      $_SESSION["rows"] =  $_POST['rows'];
+      $_SESSION["cols"] =  $_POST['columns'];
+      $_SESSION["words"] =  $_POST['words'];
+      $_SESSION["hits"] =  0;
+      $_SESSION["game"] = createTable($_SESSION["rows"], $_SESSION["cols"], $_SESSION["words"] );
 
-      function createTable($rows, $columns) {
-        $userwords = $_POST['words'];
-        $boxes = array();
-        $words = getWords($userwords);
-        $cant_letters = $rows * $columns;
 
-        print_r($words);
-        echo "<table id='table'>\n";
+      function createTable($rows, $columns, $userwords) {
+            $arrayGame = createArrayFillRandom($rows, $columns);
+            $words = getWords($userwords);
+            $_SESSION['cant_letters'] = countLetters($words);
 
-        for ($i = 0; $i < $cant_letters ; $i++) {
-          $boxes[$i] = "";
-        }
-
-        $cont = 0;
-        for ($i = 0; $i < $cant_letters; $i++) {
-          $k = rand(0, $cant_letters);
-          $position = rand(0, $cant_letters - 1);
-
-          if(isset($words[$i])) {
-            if (isset($words[$cont])) {
-              $l = $k + strlen($words[$cont]);
-              if ($boxes[$position] == "") {
-                $j = 0;
-                for ($k; $k < $l; $k++) {
-                  if ($cont < $userwords) {
-                    $boxes[$k] = "<button class='btn success'>" . substr($words[$cont], $j, 1) . "</button>";
-                    $j++;
-                  }
+            for ($indexWord = 0; $indexWord < count($words); $indexWord++) {
+            $vertical = rand(0, 1);
+            if ($vertical) {
+                $fila = rand(0, $rows - strlen($words[$indexWord])-1);
+                $columna = rand(0, $columns-1);
+                for ($i = 0; $i < strlen($words[$indexWord]); $i++) {
+                    $letra = substr($words[$indexWord], $i, 1);
+                    $nextFila = $fila + $i;
+                    $arrayGame[$nextFila][$columna] = "<td class><button type='submit' name='cell' value=\"$nextFila-$columna\">" . $letra . "</button></td>";
                 }
-              } else {
-                $i--;
-              }
-              $cont++;
-            }
-          } else {
-            $cont++;
-          }
-        }
-
-        for ($i = 0; $i < $cant_letters; $i++) {
-          $position = rand(0, $cant_letters-1);
-          $letter = chr(rand(65,90));
-          if (strlen($boxes[$i]) == 0) {
-            $boxes[$i] = "<button class='btn danger'>" . $letter . "</button>";
-          }
-        }
-
-        $pos = 0;
-        for ($i = 0; $i < $rows; $i++) {
-          echo '<tr>';
-            for ($j = 0; $j < $columns; $j++) {
-              if ($j == 2 || $j == 5) {
-                if ($boxes[$pos] == "") {
-                  echo '<td></td>';
-                } else {
-                  echo '<td>' . $boxes[$pos] . '</td>';
-                }
-              } else {
-                if ($boxes[$pos] == "") {
-                  echo '<td></td>';
-                } else {
-                  echo '<td>' . $boxes[$pos] . '</td>';
+            } else {
+                $fila = rand(0, $rows-1);
+                $columna = rand(0, $columns - strlen($words[$indexWord]));
+                for ($i = 0; $i < strlen($words[$indexWord]); $i++) {
+                    $letra = substr($words[$indexWord], $i, 1);
+                    $nextCol = $columna + $i;
+                    $arrayGame[$fila][$nextCol] = "<td class><button type='submit' name='cell' value=\"$fila-$nextCol\">" . $letra . "</button></td>";
                 }
               }
-              $pos++;
-            }
-            echo '</tr>';
           }
-          echo '</table>';
+          return $arrayGame;
         }
+
+        function CountLetters($words) {
+          $numLetters = 0;
+
+          foreach ($words as $word) {
+            $numLetters += strlen($word);
+          }
+
+          return $numLetters;
+        }
+
 
         function getWords($usernumber) {
           $filecontents = file_get_contents('words.txt');
@@ -101,7 +73,23 @@
           return $words;
         }
 
-        createTable($rows, $columns);
+        function createArrayFillRandom($rows, $columns) {
+            $array = [];
+            for ($i = 0; $i < $rows; $i++) {
+                for ($j = 0; $j < $columns; $j++) {
+                    $randChar = chr(rand(65, 90));
+                    $array[$i][$j] = "<td><button type='submit' name='cell'> $randChar </button></td>";
+                }
+            }
+            return $array;
+        }
+
+        function removeButton($htmlString) {
+            $htmlString = preg_replace('/<button [^>]*>/',"",$htmlString);
+            $htmlString = preg_replace('/<\/button>/',"",$htmlString);      
+            return $htmlString;
+        }
+
 
         ?>
     </div>
