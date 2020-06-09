@@ -104,7 +104,6 @@ session_start();
     $_SESSION["rows"] =  $_POST["rows"];
     $_SESSION["columns"] =  $_POST["columns"];
     $_SESSION["words"] =  $_POST["words"];
-    $_SESSION["tries"] =  0;
     $_SESSION["game"] = newGame($_SESSION["rows"], $_SESSION["columns"], $_SESSION["words"]);
 
   } else if (isset($_GET["cell"])) {
